@@ -76,8 +76,8 @@ scene('game', ({ level, score }) => {
         '%': [sprite('left-door'), solid()],
         '^': [sprite('top-door'), 'next-level'],
         '$': [sprite('stairs'), 'next-level'],
-        '*': [sprite('slicer'), 'slicer', { dir: -1 }],
-        '}': [sprite('skeletor')],
+        '*': [sprite('slicer'), 'slicer', { dir: -1 }, 'dangerous'],
+        '}': [sprite('skeletor'), 'dangerous'],
         ')': [sprite('lanterns'), solid()],
         '(': [sprite('fire-pot'), solid()],
     };
@@ -153,6 +153,14 @@ scene('game', ({ level, score }) => {
     collides('slicer', 'wall', (s) => {
         s.dir = -s.dir;
     });
+
+    player.overlaps('dangerous', () => {
+        go('lose', { score: scoreLabel.value });
+    });
+});
+
+scene('lose', ({ score }) => {
+    add([text(score, 32), origin('center'), pos(width() / 2, height() / 2)]);
 });
 
 start('game', { level: 0, score: 0 });
