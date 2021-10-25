@@ -6,6 +6,7 @@ kaboom({
 });
 
 const MOVE_SPEED = 120;
+const SLICER_SPEED = 100;
 
 loadRoot('https://i.imgur.com/');
 
@@ -64,18 +65,18 @@ scene('game', ({ level, score }) => {
     const levelCfg = {
         width: 48,
         height: 48,
-        'a': [sprite('left-wall'), solid()],
-        'b': [sprite('right-wall'), solid()],
-        'c': [sprite('top-wall'), solid()],
-        'd': [sprite('bottom-wall'), solid()],
-        'w': [sprite('top-right-wall'), solid()],
-        'x': [sprite('bottom-left-wall'), solid()],
-        'y': [sprite('top-left-wall'), solid()],
-        'z': [sprite('bottom-right-wall'), solid()],
+        'a': [sprite('left-wall'), solid(), 'wall'],
+        'b': [sprite('right-wall'), solid(), 'wall'],
+        'c': [sprite('top-wall'), solid(), 'wall'],
+        'd': [sprite('bottom-wall'), solid(), 'wall'],
+        'w': [sprite('top-right-wall'), solid(), 'wall'],
+        'x': [sprite('bottom-left-wall'), solid(), 'wall'],
+        'y': [sprite('top-left-wall'), solid(), 'wall'],
+        'z': [sprite('bottom-right-wall'), solid(), 'wall'],
         '%': [sprite('left-door'), solid()],
         '^': [sprite('top-door'), 'next-level'],
         '$': [sprite('stairs'), 'next-level'],
-        '*': [sprite('slicer')],
+        '*': [sprite('slicer'), 'slicer', { dir: -1 }],
         '}': [sprite('skeletor')],
         ')': [sprite('lanterns'), solid()],
         '(': [sprite('fire-pot'), solid()],
@@ -143,6 +144,14 @@ scene('game', ({ level, score }) => {
         player.changeSprite('link-going-down');
         player.move(0, MOVE_SPEED);
         player.dir = vec2(0, -1);
+    });
+
+    action('slicer', (s) => {
+        s.move(s.dir * SLICER_SPEED, 0);
+    });
+
+    collides('slicer', 'wall', (s) => {
+        s.dir = -s.dir;
     });
 });
 
