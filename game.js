@@ -5,10 +5,12 @@ kaboom({
     debug: true,
 });
 
+const MOVE_SPEED = 120;
+
 loadRoot('https://i.imgur.com/');
 
 loadSprite('link-going-left', '1Xq9biB.png');
-loadSprite('link-going-left', 'yZIb8O2.png');
+loadSprite('link-going-right', 'yZIb8O2.png');
 loadSprite('link-going-down', 'r377FIM.png');
 loadSprite('link-going-up', 'UkV0we0.png');
 loadSprite('left-wall', 'rfDoaa1.png');
@@ -29,7 +31,7 @@ loadSprite('kaboom', 'o9WizfI.png');
 loadSprite('stairs', 'VghkL08.png');
 loadSprite('bg', 'u4DVsx6.png');
 
-scene('game', () => {
+scene('game', ({ level, score }) => {
     layers(['bg', 'obj', 'ui'], 'obj');
 
     const map = [
@@ -57,10 +59,10 @@ scene('game', () => {
         'y': [sprite('top-left-wall'), solid()],
         'z': [sprite('bottom-right-wall'), solid()],
         '%': [sprite('left-door'), solid()],
-        '^': [sprite('top-door'), solid()],
-        '$': [sprite('stairs'), solid()],
-        '*': [sprite('slicer'), solid()],
-        '}': [sprite('skeletor'), solid()],
+        '^': [sprite('top-door'), 'next-level'],
+        '$': [sprite('stairs'), 'next-level'],
+        '*': [sprite('slicer')],
+        '}': [sprite('skeletor')],
         ')': [sprite('lanterns'), solid()],
         '(': [sprite('fire-pot'), solid()],
     };
@@ -69,14 +71,65 @@ scene('game', () => {
 
     add([sprite('bg'), layer('bg')]);
 
-    add([
+    const scoreLabel = add([
         text('0'),
         pos(400, 450),
         layer('ui'),
         {
-            value: 'test',
+            value: score,
         },
+        scale(2),
     ]);
+
+    add([
+        text('level ' + parseInt(level + 1)),
+        pos(400, 485),
+        scale(2),
+    ]);
+
+    const player = add([
+        sprite('link-going-right'),
+        pos(5, 190),
+        {
+            // right by default
+            dir: vec2(1, 0),
+        }
+    ]);
+
+    player.action(() => {
+        player.resolve();
+    });
+
+    player.overlaps('next-level', () => {
+        go("game", {
+            level: (level + 1),
+            score: scoreLabel.value,
+        });
+    });
+
+    keyDown('left', () => {
+        player.changeSprite('link-going-left');
+        player.move(-MOVE_SPEED, 0);
+        player.dir = vec2(-1, 0);
+    });
+
+    keyDown('right', () => {
+        player.changeSprite('link-going-right');
+        player.move(MOVE_SPEED, 0);
+        player.dir = vec2(1, 0);
+    });
+
+    keyDown('up', () => {
+        player.changeSprite('link-going-up');
+        player.move(0, -MOVE_SPEED);
+        player.dir = vec2(0, -1);
+    });
+
+    keyDown('down', () => {
+        player.changeSprite('link-going-down');
+        player.move(0, MOVE_SPEED);
+        player.dir = vec2(0, -1);
+    });
 });
 
-start('game');
+start('game', { level: 0, score: 0 });
