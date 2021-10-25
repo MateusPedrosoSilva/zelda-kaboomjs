@@ -7,6 +7,7 @@ kaboom({
 
 const MOVE_SPEED = 120;
 const SLICER_SPEED = 100;
+const SKELETOR_SPEED = 60;
 
 loadRoot('https://i.imgur.com/');
 
@@ -77,7 +78,7 @@ scene('game', ({ level, score }) => {
         '^': [sprite('top-door'), 'next-level'],
         '$': [sprite('stairs'), 'next-level'],
         '*': [sprite('slicer'), 'slicer', { dir: -1 }, 'dangerous'],
-        '}': [sprite('skeletor'), 'dangerous'],
+        '}': [sprite('skeletor'), 'skeletor', 'dangerous', { dir: 1 }],
         ')': [sprite('lanterns'), solid()],
         '(': [sprite('fire-pot'), solid()],
     };
@@ -152,6 +153,14 @@ scene('game', ({ level, score }) => {
 
     collides('slicer', 'wall', (s) => {
         s.dir = -s.dir;
+    });
+
+    action('skeletor', (sk) => {
+        sk.move(0, sk.dir * SKELETOR_SPEED);
+    });
+
+    collides('skeletor', 'wall', (sk) => {
+        sk.dir = -sk.dir;
     });
 
     player.overlaps('dangerous', () => {
